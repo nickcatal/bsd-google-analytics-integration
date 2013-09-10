@@ -4,25 +4,25 @@ Blue State Digital Google Analytics Integration Script
 Google Analytics Integration library for use on sites that use the BSD Tools, developed by Blue State Digital agency employees, and available for public use under the Apache 2 license. 
 
 <h1>Insallation</h1>
-In order to correctly install the `ga_integration-min.js` snippet, you need to break the standard Google Analytics snippet in half. This is so that the custom variables set in the script set before the `_trackPageview`, but after thd domain is set. 
+In order to correctly install the `ga_integration-min.js` snippet, you need to break the standard Google Analytics snippet in half. This is so that the custom variables set in the script set before the `_trackPageview`, but after the `setDomainName` call is set. 
 ```html
 <!-- START Google Analytics -->
 <script type="text/javascript">
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', '<!--place id here-->']);
-    _gaq.push(["_setDomainName", location.hostname.split(".").slice(-2).join(".")]);
-    _gaq.push(["_setAllowAnchor", true]);
-    _gaq.push(['_setAllowLinker', true]);
-    _gaq.push(['_setSiteSpeedSampleRate', 20])
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', '<!--place id here-->']);
+    _gaq.push(["_setDomainName", location.hostname.split(".").slice(-2).join(".")]);
+    _gaq.push(["_setAllowAnchor", true]);
+    _gaq.push(['_setAllowLinker', true]);
+    _gaq.push(['_setSiteSpeedSampleRate', 20])
 </script>
 <script src="//dnwssx4l7gl7s.cloudfront.net/bsdaction/default/page/-/js/analytics/ga_integration-min.js"></script>
 <script>
-    _gaq.push(['_trackPageview']);
-    (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    })();
+    _gaq.push(['_trackPageview']);
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
 </script>
 <!-- END Google Analytics -->
 ```
