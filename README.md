@@ -64,9 +64,9 @@ The behvaior of the library can be configured by the `ga_integration_config` glo
 
 The configuration attributes are:
 
- -cookiedomain - if this isn't set manually, the library will just use the location.hostname.split method used in the above snippet on the `_setDomainName` call to grab the current domain.
- - nocookie - set to true if you want to prevent the library from using cookies. This disables any of the tracking features that rely on cookies. 
- - msid_seed - passes the actual `mailing_send_id` instead of the obfuscated `mailing_send_id` that is set by default on the mailing cookie. Should always set it if we can, especially for clients using our mailer. Contact BSD to find out this value. 
+ - `bsddomain` - Set to one of the bsd subdomains (e.g. `https://donate.domain.org`, or `//donate-domain.org`) for the purposes of grabbing LOE information or loading the SPUD script. To avoid mixed content errors, this domain should support HTTPS.
+ - `cookiedomain - if this isn't set manually, the library will just use the location.hostname.split method used in the above snippet on the `_setDomainName` call to grab the current domain.
+ - `nocookie` - set to true if you want to prevent the library from using cookies. This disables any of the tracking features that rely on cookies. 
+ - `msid_seed` - passes the actual `mailing_send_id` instead of the obfuscated `mailing_send_id` that is set by default on the mailing cookie. Should always set it if we can, especially for clients using our mailer. Contact BSD to find out this value. 
  - `nospud` - Set to true to avoid unnecessary SPUD calls on non-bsd domains. Not necessary if you configure the `bsddomain`
  - `noloe` - set to false to avoid unnecessary LOE calls on non-bsd domains. Not necessary if you configure the `bsddomain`
- - `bsddomain` - Set to one of the bsd subdomains (e.g. `https://donate.domain.org`) for the purposes of grabbing LOE information or loading the SPUD script. To avoid mixed content errors, this domain should support HTTPS.
