@@ -3,7 +3,7 @@ Blue State Digital Google Analytics Integration Script
 
 Google Analytics Integration library for use on sites that use the BSD Tools, developed by Blue State Digital agency employees, and available for public use under the Apache 2 license. 
 
-<h1>Insallation</h1>
+<h1>Installation</h1>
 In order to correctly install the `ga_integration-min.js` snippet, you need to break the standard Google Analytics snippet in half. This is so that the custom variables set in the script set before the `_trackPageview`, but after the `setDomainName` call is set. 
 ```html
 <!-- START Google Analytics -->
