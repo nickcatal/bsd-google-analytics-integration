@@ -22,7 +22,7 @@ Set basic GA defaults to make sites better.
 */
 var _gaq = _gaq || [];
 var optimizely = optimizely || [];
-_gaq.push(['_setSiteSpeedSampleRate', 10],["_setAllowAnchor", true], ["_setAllowLinker", true]);
+
 
 //Rest of the file takes place in this closure. 
 //The closure scopes jQuery or bQuery to the $ variable locally.
@@ -127,29 +127,8 @@ _gaq.push(['_setSiteSpeedSampleRate', 10],["_setAllowAnchor", true], ["_setAllow
 		return map;
 	} ());
 	
-	
-	/*
-	CUSTOM VARIABLES
-	1: Store the 'source' parameter
-	2: Store the msid cookie, with optional deobfuscation if the msid_seed is set. 
-	3: True/False as to if GUID cookie is set
-	4: True/False as to if SPUD cookie is set
-	5: Store the 'subsource' parameter. 
-	*/
-	if (get.source) {
-		_gaq.push(['_setCustomVar', 1, 'Source', get.source, 2]);
-	}
-	if (get.subsource) {
-		_gaq.push(['_setCustomVar', 5, 'Subsource', get.subsource, 2]);
-	}
-	if (readCookie("msid")) {
-		var msid = ga_integration_config.msid_seed ? ""+(parseInt(readCookie("msid"), 16)^ga_integration_config.msid_seed) : readCookie("msid");
-		_gaq.push(['_setCustomVar', 2, 'msid', msid, 2]);
-	}
-	_gaq.push(['_setCustomVar', 3, 'Has GUID', "" + !!readCookie("guid"), 2]);
-	_gaq.push(['_setCustomVar', 4, 'Has Spud', "" + !!readCookie("spud"), 2]);
 
-	/*From here on, jQuery is required. Track if no jQuery, then throw an error*/
+	/*From here on, jQuery is required. Track if no jQuery, throw an error*/
 	if(!$ || !$.fn){
 		throw new Error("No jQuery found.");
 	}

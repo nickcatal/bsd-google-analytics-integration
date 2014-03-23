@@ -5,26 +5,26 @@ Google Analytics Integration library for use on sites that use the BSD Tools, de
 
 <h1>Installation</h1>
 In order to correctly install the `ga_integration-min.js` snippet, you need to break the standard Google Analytics snippet in half. This is so that the custom variables set in the script set before the `_trackPageview`, but after the `setDomainName` call is set. 
+There are two parts to the `ga_integration-min.js` code, a modified version of the initial Google Analytics snippet in the header (preferably immediately before the `</head>` tag) then the 
 ```html
 <!-- START Google Analytics -->
 <script type="text/javascript">
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', '<!--place id here-->']);
-    _gaq.push(["_setDomainName", location.hostname.split(".").slice(-2).join(".")]);
-    _gaq.push(["_setAllowAnchor", true]);
-    _gaq.push(['_setAllowLinker', true]);
-    _gaq.push(['_setSiteSpeedSampleRate', 20])
-</script>
-<script src="//dnwssx4l7gl7s.cloudfront.net/bsdaction/default/page/-/js/analytics/ga_integration-min.js"></script>
-<script>
-    _gaq.push(['_trackPageview']);
-    (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    })();
+var ga_integration_config = {
+    bsddomain: '//donate.yourdomain.com',
+    msid_seed: 'abcd123'
+}
+var _gaq=[["_setAccount","<!--place id here-->"],["_setDomainName",location.hostname.split(".").slice(-2).join(".")]];
+_gaq.push(function(){function b(a){return(RegExp("(?:^|; )"+a+"=([^;]*)").exec(document.cookie)||[]).pop()}var a=function(){var a={};location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi,function(b,e,f){a[e]=f});return a}();_gaq.push(["_setSiteSpeedSampleRate",10],["_setAllowAnchor",!0],["_setAllowLinker",!0]);a.source&&_gaq.push(["_setCustomVar",1,"Source",a.source,2]);a.subsource&&_gaq.push(["_setCustomVar",5,"Subsource",a.subsource,2]);b("msid")&&(a=ga_integration_config.msid_seed?""+(parseInt(b("msid"),
+16)^ga_integration_config.msid_seed):b("msid"),_gaq.push(["_setCustomVar",2,"msid",a,2]));_gaq.push(["_setCustomVar",3,"Has GUID",""+!!b("guid"),2]);_gaq.push(["_setCustomVar",4,"Has Spud",""+!!b("spud"),2])});_gaq.push(["_trackPageview"]);(function(b,a){var c=b.createElement(a),d=b.getElementsByTagName(a)[0];c.async=1;c.src=("https:"==location.protocol?"//ssl":"//www")+".google-analytics.com/ga.js";d.parentNode.insertBefore(c,d)})(document,"script");
 </script>
 <!-- END Google Analytics -->
+```
+
+
+To include the rest of the script, simply include the script after you've included jquery. The following example assumes you have not yet included jquery on your page.
+```html
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="//dnwssx4l7gl7s.cloudfront.net/bsdaction/default/page/-/js/analytics/ga_integration-min.js"></script>
 ```
 
 <h1>Features</h1>
