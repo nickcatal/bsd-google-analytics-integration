@@ -15,7 +15,7 @@ In order to correctly install the `ga_integration-min.js` snippet, you need to b
     _gaq.push(['_setAllowLinker', true]);
     _gaq.push(['_setSiteSpeedSampleRate', 20])
 </script>
-<script src="//dnwssx4l7gl7s.cloudfront.net/bsdaction/default/page/-/js/analytics/ga_integration-min.js"></script>
+<script src="//s.bsd.net/bsdaction/default/page/-/js/analytics/ga_integration-min.js"></script>
 <script>
     _gaq.push(['_trackPageview']);
     (function() {
