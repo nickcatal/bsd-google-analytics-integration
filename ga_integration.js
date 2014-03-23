@@ -482,7 +482,7 @@ _gaq.push(['_setSiteSpeedSampleRate', 10],["_setAllowAnchor", true], ["_setAllow
 						else {
 							var subsource = [];
 							$.each(vals, function(k,v){
-								if(k!=="utmcmd" && k!=="utmcsr"){ //save all the values except source and medium
+								if(k!=="utmcmd" && k!=="utmcsr" && k!=="utmcct"){ //save all the values except source and medium and content
 									subsource.push(v);
 								}
 							});
@@ -493,11 +493,11 @@ _gaq.push(['_setSiteSpeedSampleRate', 10],["_setAllowAnchor", true], ["_setAllow
 						}
 						
 						/*Set source and subsource cookies if applicable*/
-						if(arg.source){
-							createCookie("source", arg.source, 180);							
+						if(get.source || arg.source){
+							createCookie("source", get.source || arg.source, 7);							
 						}
-						if(arg.subsource){
-							createCookie("subsource", arg.subsource, 180);
+						if(get.subsource || arg.subsource){
+							createCookie("subsource", get.subsource || arg.subsource, 7);
 						}						
 					}	;
 				
