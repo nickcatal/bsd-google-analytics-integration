@@ -532,11 +532,6 @@ var optimizely = optimizely || [];
 				});
 			}
 
-			// Attach to Facebook's 'sharer' popup. All we can measure is the actual click as Facebook does not provide a callback
-			$("[href*='.facebook.com/sharer.php?']").bind("mousedown", function(){
-				social_event("Facebook", "Share", $(this).attr('href'), getPathname($(this).attr('href')), 1);
-			})
-
 			/*Checking for the existence of the Twitter Intents JS SDK. Will exist on pages that load widgets.js*/
 			
 			if (window.twttr && twttr.events && twttr.ready) {
