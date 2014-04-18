@@ -214,7 +214,7 @@ var optimizely = optimizely || [];
 				}
 				category += pagetype === 4 ? " Memberships" : pagetype === 2 ? " Tickets" : pagetype === 3 ? " Custom Contributions" : " Contributions";
 				_gaq.push(['_addTrans', order_id, "", amount, '0', '0', "", "", ""], ['_addItem', order_id, sku, form, category, amount, '1'], ['_trackTrans']);
-				optimizely.push(["trackEvent", "bsdtracker", amount * 100]);
+				optimizely.push(["trackEvent", "bsdtracker", {'revenue': amount * 100}]);
 			}
 			_gaq.push(['_trackEvent', 'Completions', type, form, Math.ceil(amount||0)]); //pass the completion event
 			optimizely.push(["trackEvent", "bsdtracker_"+type]);
