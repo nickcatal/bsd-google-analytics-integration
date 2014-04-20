@@ -14,11 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-var _gaq=[
-    ['_setAccount','<!--place id here-->'],
+(function(window, document, location, ga_id) {
+function gapush(what) {
+    window._gaq.push(what);
+}
+function set_custom_var(number, name, value, scope) {
+    gapush(['_setCustomVar', number, name, value, scope]);
+}
+// Scope ga_integration_config locally to help the minifier
+var ga_integration_config = window.ga_integration_config;
+window._gaq=[
+    ['_setAccount', ga_id],
     ["_setDomainName", location.hostname.split(".").slice(-2).join(".")]
 ];
-_gaq.push(function() {
+gapush(function() {
     function readCookie(a){return(RegExp("(?:^|; )"+a+"=([^;]*)").exec(document.cookie)||[]).pop();}
     var get = (function() {
         var map = {};
@@ -28,7 +37,7 @@ _gaq.push(function() {
         return map;
     } ());
     // Some useful defaults
-    _gaq.push(
+    gapush(
         ['_setSiteSpeedSampleRate', 10],
         ["_setAllowAnchor", true],
         ["_setAllowLinker", true]);
@@ -41,20 +50,21 @@ _gaq.push(function() {
     5: Store the 'subsource' parameter. 
     */
     if (get.source) {
-        _gaq.push(['_setCustomVar', 1, 'Source', get.source, 2]);
+        set_custom_var(1, 'Source', get.source, 2);
     }
     if (get.subsource) {
-        _gaq.push(['_setCustomVar', 5, 'Subsource', get.subsource, 2]);
+        set_custom_var(5, 'Subsource', get.subsource, 2);
     }
     if (readCookie("msid")) {
         var msid = ga_integration_config.msid_seed ? ""+(parseInt(readCookie("msid"), 16)^ga_integration_config.msid_seed) : readCookie("msid");
-        _gaq.push(['_setCustomVar', 2, 'msid', msid, 2]);
+        set_custom_var(2, 'msid', msid, 2);
     }
-    _gaq.push(['_setCustomVar', 3, 'Has GUID', "" + !!readCookie("guid"), 2]);
-    _gaq.push(['_setCustomVar', 4, 'Has Spud', "" + !!readCookie("spud"), 2]);
+    set_custom_var(3, 'Has GUID', "" + !!readCookie("guid"), 2);
+    set_custom_var(4, 'Has Spud', "" + !!readCookie("spud"), 2);
     
 });
-_gaq.push(['_trackPageview']);
-(function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];g.async=1;
+gapush(['_trackPageview']);
+var g=document.createElement('script'),s=document.getElementsByTagName('script')[0];g.async=1;
 g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
-s.parentNode.insertBefore(g,s)}(document,'script'));
+s.parentNode.insertBefore(g,s);
+})(window, document, location, '<!--place id here-->');

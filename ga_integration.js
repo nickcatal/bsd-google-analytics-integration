@@ -23,17 +23,17 @@ Set basic GA defaults to make sites better.
 var _gaq = _gaq || [];
 var optimizely = optimizely || [];
 
+//Check for the ga_integration_config object globally; create one if it doesn't exist
+var ga_integration_config = ga_integration_config || {};
 
 //Rest of the file takes place in this closure. 
 //The closure scopes jQuery or bQuery to the $ variable locally.
-(function($) {
-	window.ga_integration_config = window.ga_integration_config || {}; //Check for the ga_integration_config object globally; instantiate a local one if it's not set. 
+(function(window, document, location, $, ga_integration_config) {
 		
 	if(!ga_integration_config.cookiedomain){
 		var slice = location.hostname.match(/\.uk$/) ? -3 : -2; //-3 for uk domains (foo.co.uk); -2 for regular domains (foo.com)
 		ga_integration_config.cookiedomain = location.hostname.split(".").slice(slice).join(".");
 	}
-	
 	/* window.onerror tracking: For JavaScript errors that do aren't caught and bubble to the window.
 		window.onerror has better support than attaching an event
 		so, to compensate, we backup any window.onerror function that might have already been set and execute it if it exists.
@@ -567,4 +567,4 @@ var optimizely = optimizely || [];
 			}
 		});
 	});
-})(window.jQuery||window.bQuery);
+})(window, document, location, $, ga_integration_config);
