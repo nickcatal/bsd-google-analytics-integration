@@ -1,68 +1,55 @@
-Blue State Digital Google Analytics Integration Script
-================================
+<h2>Developing GA Integration</h2>
 
-Google Analytics Integration library for use on sites that use the BSD Tools, developed by Blue State Digital agency employees, and available for public use under the Apache 2 license. 
+Download the <a href="https://developers.google.com/closure/compiler/docs/gettingstarted_app">Closure Compiler JAR file</a> and place it in the `analytics` parent directory
 
-<h1>Installation</h1>
-In order to correctly install the `ga_integration-min.js` snippet, you need to break the standard Google Analytics snippet in half. This is so that the custom variables set in the script set before the `_trackPageview`, but after the `setDomainName` call is set. 
-```html
-<!-- START Google Analytics -->
-<script type="text/javascript">
-    var _gaq = _gaq || [];
-    _gaq.push(['_setAccount', '<!--place id here-->']);
-    _gaq.push(["_setDomainName", location.hostname.split(".").slice(-2).join(".")]);
-    _gaq.push(["_setAllowAnchor", true]);
-    _gaq.push(['_setAllowLinker', true]);
-    _gaq.push(['_setSiteSpeedSampleRate', 20])
-</script>
-<script src="//s.bsd.net/bsdaction/default/page/-/js/analytics/ga_integration-min.js"></script>
-<script>
-    _gaq.push(['_trackPageview']);
-    (function() {
-        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    })();
-</script>
-<!-- END Google Analytics -->
+Add the following to the .git/hooks/pre-commit file in the repo:
+
+```bash
+#!/bin/sh
+if ! ( git status | grep -qs ga_integration.js)
+    then
+        echo "Skipping minification"
+        exit
+fi
+echo "Minifying ga_integration..."
+java -jar ../compiler.jar --js ga_integration.js --js_output_file ga_integration-min.js
+git add ga_integration-min.js
+echo "Minified ga_integration"
+#Commit
+exit
 ```
 
-<h1>Features</h1>
+This will automatically minify `ga_integration.js` into `ga_integration-min.js` when changes are made to `ga_integration.js` so you don't need to manually minify and paste the changes. 
 
-<h3>E-Commerce</h3>
-All contributions are tracked by default as e-commerce transactions, with the product name set to the form name and the category set to the type of contribution. Different types include the various combinations of Recurring, Quick Donate, and Ticket-based contributions. 
+Be sure that the git hook is executable (while you're add it, do the same for the test.sh file):
 
-<h3>GA Event Categories</h3>
-- Completions: Tracks completed BSD Actions in the case of signups, ecommerce and quick-donate opt-in. The ecommerce event is duplicative of the E-Commerce module data, but is less accurate because the associated values are rounded.
-- PDF Clicks: This tracks clicks on links to a pdf.
-- Form Submits: Tracks all form submits, regardless of the outcome.
-- Errors: Validation errors in Signup, Contribution and Share.
-- Error Log: JavaScript Errors
-- Exits: Clicks on links to a different domain
-- Mailcheck: catches mis-spelled email addresses
-- Duplication of the Social Events
-- Tests: Data from our Optimizely experiments running on the page
+```bash
+    chmod +x .git/hooks/pre-commit
+    chmod +x tests/test.sh
+```
 
+Install PhantomJS:
+````bash
+    brew update && brew install phantomjs
+````
+<h2>Run the unit tests</h2>
+Depending on phantomjs permissions, you may need to run this as `sudo`.
+````bash
+    tests/test.sh
+````
 
-<h3>Social Tracking</h3>
-By default, the following things, when properly configured, are automatically tracked as social tracking and duplicated to event tracking:
-- Facebook Likes, Clicks to Facebook Shares, and Clicks to Facebook
-- All Twitter intents events, including callbacks for completed tweets and follows. 
-- External clicks to Pinterest, Facebook, Twitter and YouTube. 
+<h2>Run the deploy script</h2>
+This will run the unit tests, ensure they pass, and upload the newest version into the `bsdaction` file storage. Then it'll invalidate the Fastly cache. (It does not invalidate the Cloudfront cache.)
 
-<h3>Custom Variables</h3>
-1. Source: Captures the value of a ?source parameter in the URL
-2. msid: Grabs the obfuscated mailing_send_id cookie when it's available. This can be decoded by the analytics team and made to associate traffic with a particular mailing (in the absence of proper tagging)
-3. Has GUID: Tags whether a visitor has a guid cookie at the start of their visit. 
-4. Has SPUD:Tags whether a visitor has a spud cookie at the start of their visit. 
-5. Subsource: Captures the value of a ?subsource parameter in the URL
+Depending on phantomjs permissions, you may need to run this as `sudo`.
 
+````bash
+    php release/deploy.php
+````
 
 <h2>Configuration</h2>
 
-The behvaior of the library can be configured by the `ga_integration_config` global object.
-
-The configuration attributes are:
+GA Integration will look for an optional global object called `ga_integration_config` which you can use to set configuration for a client. All fields are optional. 'ga_integration_config' should be included before GAI is loaded. You can generate a skeleton object with a client's mailing send id seed with the <a href='https://stats.bluestatedigital.com/export/'>Abacus Generate GA Integration Config Script Block</a> query.
 
  - `bsddomain` - Set to one of the bsd subdomains (e.g. `https://donate.domain.org`, or `//donate-domain.org`) for the purposes of grabbing LOE information or loading the SPUD script. To avoid mixed content errors, this domain should support HTTPS.
  - `cookiedomain` - if this isn't set manually, the library will just use the `location.hostname.split` method used in the above snippet on the `_setDomainName` call to grab the current domain.
@@ -70,3 +57,13 @@ The configuration attributes are:
  - `msid_seed` - passes the actual `mailing_send_id` instead of the obfuscated `mailing_send_id` that is set by default on the mailing cookie. Should always set it if we can, especially for sites using the BSD mailer. Contact BSD to find out this value. 
  - `nospud` - Set to `true` to disable SPUD features. (Default: `false`)
  - `noloe` - Set to `true` to disable LOE usage. (Default: `false`)
+
+Example:
+
+```javascript
+var ga_integration_config = {
+  nospud : true,
+  bsdomain: "//secure-domain.client.com",
+  msid_seed: 9023328
+}
+````

@@ -22,12 +22,105 @@ Set basic GA defaults to make sites better.
 */
 var _gaq = _gaq || [];
 var optimizely = optimizely || [];
+
 _gaq.push(['_setSiteSpeedSampleRate', 10],["_setAllowAnchor", true], ["_setAllowLinker", true]);
 
 //Rest of the file takes place in this closure. 
 //The closure scopes jQuery or bQuery to the $ variable locally.
 (function($) {
 	window.ga_integration_config = window.ga_integration_config || {}; //Check for the ga_integration_config object globally; instantiate a local one if it's not set. 
+	
+	var analytics = {
+		event : function(_args){
+			var args;
+			if(arguments.length === 1){
+				args = _args; 
+			}
+			else{
+				args = Array.prototype.slice.call(arguments, 0);
+			}
+			if(window._gaq){
+				_gaq.push(["_trackEvent"].concat(args));
+			}
+			if(typeof ga === "function"){
+				try{
+					if(args[5] && args[5] === true){
+						args[5] =  {'nonInteraction': 1};
+					}
+					ga.apply(this, ["send", "event"].concat(args));
+				}
+				catch(e){}
+			}
+		},
+		social : function(){
+			var args = Array.prototype.slice.call(arguments, 0);
+			if(window._gaq){
+				_gaq.push(["_trackSocial"].concat(args))
+			}
+			if(typeof ga === "function"){
+				try{
+					ga.apply(this, ["send", "social"].concat(args));
+				}
+				catch(e){}
+			}
+			
+		},
+		custom : function(){
+			var args = Array.prototype.slice.call(arguments, 0);
+			if(window._gaq){
+				_gaq.push(["_setCustomVar"].concat(args).concat(2))
+			}
+			if(typeof ga === "function"){
+				try{
+					if( args[2] !== "false") {
+						ga.apply(this, ["set", "dimension" + args[0], args[1] + args[2]  ] );	
+					}
+				}
+				catch(e){}
+			}
+			
+		},
+		ecommerce : function(order_id, amount, sku, form, category){
+			if(window._gaq){
+				_gaq.push(['_addTrans', order_id, "", amount, '0', '0', "", "", ""], ['_addItem', order_id, sku, form, category, amount, '1'], ['_trackTrans']);
+			}
+			if(typeof ga === "function"){
+				try{
+					ga('require', 'ecommerce', 'ecommerce.js');
+					ga('ecommerce:addTransaction', {
+					  'id': order_id,
+					  'affiliation': '',
+					  'revenue': amount, 
+					  'shipping': '0',  
+					  'tax': '0' 
+					});
+					ga('ecommerce:addItem', {
+					  'id': order_id, 
+					  'name': form, 
+					  'sku': sku,
+					  'category': category,
+					  'price': amount, 
+					  'quantity': '1' 
+					});
+					ga('ecommerce:send');
+				}
+				catch(e){}
+			}
+		},
+		queue : function(fn){
+			if(window._gaq){
+				_gaq.push(fn);
+			}
+			if(typeof ga === "function"){
+				try{
+					ga(fn);
+				}
+				catch(e){
+					
+				}
+			}
+		}
+	}
 		
 	if(!ga_integration_config.cookiedomain){
 		var slice = location.hostname.match(/\.uk$/) ? -3 : -2; //-3 for uk domains (foo.co.uk); -2 for regular domains (foo.com)
@@ -44,7 +137,7 @@ _gaq.push(['_setSiteSpeedSampleRate', 10],["_setAllowAnchor", true], ["_setAllow
 		if (oldonerror) {
 			oldonerror.apply(this, arguments );
 		}
-		_gaq.push(['_trackEvent', 'JavaScript Errors', msg, url + '_' + line, 0, true]);
+		analytics.event('JavaScript Errors', msg, url + '_' + line, 0, true);
 	};
 
 	/* UTILITY FUNCTIONS
@@ -91,10 +184,11 @@ _gaq.push(['_setSiteSpeedSampleRate', 10],["_setAllowAnchor", true], ["_setAllow
 	
 
 	/* social_event: This is a wrapper over _gaq.push for tracking social actions using both _trackSocial and _trackEvent
-			The reason for duplicating this data is that _trackSocial is still somewhat limited, and keeping both allows for more flexibilty when using the data.
+		The reason for duplicating this data is that _trackSocial is still somewhat limited, and keeping both allows for more flexibilty when using the data.
 	*/
 	function social_event(net, action, url, path, val) {
-		_gaq.push(["_trackEvent", net, action, path, val], ["_trackSocial", net, action, url, path]);
+		analytics.event(net, action, path, val);
+		analytics.social(net, action, url, path);
 	}
 	
 	/* Small hash computation function stolen from ga.js. Used internally. */
@@ -137,17 +231,17 @@ _gaq.push(['_setSiteSpeedSampleRate', 10],["_setAllowAnchor", true], ["_setAllow
 	5: Store the 'subsource' parameter. 
 	*/
 	if (get.source) {
-		_gaq.push(['_setCustomVar', 1, 'Source', get.source, 2]);
+		analytics.custom(1, 'Source', get.source);
 	}
 	if (get.subsource) {
-		_gaq.push(['_setCustomVar', 5, 'Subsource', get.subsource, 2]);
+		analytics.custom( 5, 'Subsource', get.subsource);
 	}
 	if (readCookie("msid")) {
 		var msid = ga_integration_config.msid_seed ? ""+(parseInt(readCookie("msid"), 16)^ga_integration_config.msid_seed) : readCookie("msid");
-		_gaq.push(['_setCustomVar', 2, 'msid', msid, 2]);
+		analytics.custom(2, 'msid', msid );
 	}
-	_gaq.push(['_setCustomVar', 3, 'Has GUID', "" + !!readCookie("guid"), 2]);
-	_gaq.push(['_setCustomVar', 4, 'Has Spud', "" + !!readCookie("spud"), 2]);
+	analytics.custom(3, 'Has GUID', "" + !!readCookie("guid") );
+	analytics.custom(4, 'Has Spud', "" + !!readCookie("spud") );
 
 	/*From here on, jQuery is required. Track if no jQuery, then throw an error*/
 	if(!$ || !$.fn){
@@ -181,7 +275,7 @@ _gaq.push(['_setSiteSpeedSampleRate', 10],["_setAllowAnchor", true], ["_setAllow
 					param.apply(this);
 				} else {
 					if ($.isArray(param) && param[1] && typeof param[1] !== "number") {
-						_gaq.push(["_trackEvent"].concat(param));
+						analytics.event(param);
 					} else if (typeof param === "string" || $.isArray(param)) {
 						optimizely.push(["trackEvent"].concat(param));
 					}
@@ -234,11 +328,12 @@ _gaq.push(['_setSiteSpeedSampleRate', 10],["_setAllowAnchor", true], ["_setAllow
 					createCookie("_bsda_q",1, 180);
 				}
 				category += pagetype === 4 ? " Memberships" : pagetype === 2 ? " Tickets" : pagetype === 3 ? " Custom Contributions" : " Contributions";
-				_gaq.push(['_addTrans', order_id, "", amount, '0', '0', "", "", ""], ['_addItem', order_id, sku, form, category, amount, '1'], ['_trackTrans']);
+				analytics.ecommerce(order_id, amount, sku, form, category);
 				optimizely.push(["trackEvent", "bsdtracker", amount * 100]);
 			}
-			_gaq.push(['_trackEvent', 'Completions', type, form, Math.ceil(amount||0)]); //pass the completion event
+			analytics.event('Completions', type, form, Math.ceil(amount||0)); //pass the completion event
 			optimizely.push(["trackEvent", "bsdtracker_"+type]);
+			
 			
 		}
 	}
@@ -253,7 +348,7 @@ _gaq.push(['_setSiteSpeedSampleRate', 10],["_setAllowAnchor", true], ["_setAllow
 
 	$.fn.registerBSDError = function(module) {
 		if (this.length) {
-			_gaq.push(['_trackEvent', 'Error', module, getPathname(document.referrer), bsd_contrib_amt(module), true]);
+			analytics.event('Error', module, getPathname(document.referrer), bsd_contrib_amt(module), true);
 		}
 	};
 	
@@ -293,7 +388,7 @@ _gaq.push(['_setSiteSpeedSampleRate', 10],["_setAllowAnchor", true], ["_setAllow
 		        $this.unbind("keydown mousedown", track);
 		        var $form = $this.is("form") ? $this : $this.closest("form");
 		        var form_id = $form.attr('id') || $form.attr('name') || $form.attr('action') || "(none)";
-		        _gaq.push(['_trackEvent', 'Form Submits', form_id, location.pathname, bsd_contrib_amt(form_id)]);
+		        analytics.event('Form Submits', form_id, location.pathname, bsd_contrib_amt(form_id));
 		    }
 		}
 		$('input').filter('[type="image"],[type="submit"]').bind("mousedown", track);
@@ -322,7 +417,7 @@ _gaq.push(['_setSiteSpeedSampleRate', 10],["_setAllowAnchor", true], ["_setAllow
 					social_event(proper(net[1]), "click", dest, getPathname(dest));
 				}
 				else{
-					_gaq.push(['_trackEvent', 'Exits', getElem(this.href).hostname, this.href]);		
+					analytics.event('Exits', getElem(this.href).hostname, this.href);		
 				}
 			}
 		},
@@ -330,11 +425,11 @@ _gaq.push(['_setSiteSpeedSampleRate', 10],["_setAllowAnchor", true], ["_setAllow
 		
 		/*PDF Click tracking*/
 		$('a[href$=".pdf"]').analytics(function(e){
-			_gaq.push(["_trackEvent", 'PDF Clicks', $(this).text(), this.href, 0, true]);
+			analytics.event('PDF Clicks', $(this).text(), this.href, 0, true);
 		});
 		/*HTML5 video/audio play/end/pause tracking*/
 		$("video,audio").bind("play ended pause", function(e){
-			_gaq.push(["_trackEvent", proper(this.nodeName), proper(e.type), this.src, 0, true ]);
+			analytics.event( proper(this.nodeName), proper(e.type), this.src, 0, true );
 		});
 		
 		/* Cross-domain tracking plugin.*/
@@ -343,11 +438,12 @@ _gaq.push(['_setSiteSpeedSampleRate', 10],["_setAllowAnchor", true], ["_setAllow
 			this.one("click", function(e) {
 				if (~$.inArray(domain, domains) && domain != this.hostname.split(".").slice(-2).join(".")) {
 						$this = $(this);
-						_gaq.push(function() {
+						ga.queue(function(){
 							$this.attr('href', function(i, old) {
 								return _gat._getTrackerByName()._getLinkerUrl(old, true);
 							});
-						});
+							
+						})
 				}
 			});
 		};
@@ -379,9 +475,9 @@ _gaq.push(['_setSiteSpeedSampleRate', 10],["_setAllowAnchor", true], ["_setAllow
 				var mailcheck = $(".bsd-mailcheck");
 				if(mailcheck.length){
 					var domain = mailcheck.text();
-					_gaq.push(["_trackEvent", "Mailcheck", "Shown", domain, 0, true]);
+					analytics.event("Mailcheck", "Shown", domain, 0, true);
 					var callback = function(){
-						_gaq.push(["_trackEvent", "Mailcheck", "Clicked", domain, 0, true]);
+						analytics.event("Mailcheck", "Clicked", domain, 0, true);
 					};
 					if(!$.fn.live){ //For jQuery >=1.9, there's no live()
 						$("#signup").delegate(".bsd-mailcheck a", "click", callback);
@@ -403,7 +499,7 @@ _gaq.push(['_setSiteSpeedSampleRate', 10],["_setAllowAnchor", true], ["_setAllow
 			if (optimizely.variationNamesMap) {
 			    var optmap = optimizely.variationNamesMap;
 				$.each(optimizely.variationNamesMap, function(key,val){
-					_gaq.push(["_trackEvent", "Optimizely", optimizely.allExperiments[key].name, val, 0, true]);
+					analytics.event("Optimizely", optimizely.allExperiments[key].name, val, 0, true);
 				});
 			}
 			
@@ -439,7 +535,7 @@ _gaq.push(['_setSiteSpeedSampleRate', 10],["_setAllowAnchor", true], ["_setAllow
 					}
 
 			        //Send engagement string as non-interaction event, with hpc as the value.
-			        _gaq.push(["_trackEvent", "Ladder of Engagement", engagement, label, hpc, true]);
+			        analytics.event("Ladder of Engagement", engagement, label, hpc, true);
 			        //set a session cookie so that the logic only runs once per session.
 					createCookie("loega", 1);
 			    });
