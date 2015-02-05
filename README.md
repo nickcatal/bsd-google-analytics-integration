@@ -54,6 +54,11 @@ By default, the following things, when properly configured, are automatically tr
 4. Has SPUD:Tags whether a visitor has a spud cookie at the start of their visit. 
 5. Subsource: Captures the value of a ?subsource parameter in the URL
 
+<h3>Traffic Source Integration</h3>
+For any visit where this is no source or subsource set, parses the traffic source information available from the Google Analytics cookie.
+1. Sets 'BSD source' to medium_source
+2. Sets BSD subsource to campaign_content_term, when available.
+
 <h2>Configuration</h2>
 
 The behvaior of the library can be configured by the `ga_integration_config` global object.
