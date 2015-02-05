@@ -56,8 +56,8 @@ By default, the following things, when properly configured, are automatically tr
 
 <h3>Traffic Source Integration</h3>
 For any visit where this is no source or subsource set, parses the traffic source information available from the Google Analytics cookie.
-1. Sets 'BSD source' to medium_source
-2. Sets BSD subsource to campaign_content_term, when available.
+- Sets 'BSD source' to medium_source
+- Sets BSD subsource to campaign_content_term, when available.
 
 <h2>Configuration</h2>
 
