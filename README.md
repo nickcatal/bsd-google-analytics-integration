@@ -31,7 +31,7 @@ All contributions are tracked by default as e-commerce transactions, with the pr
 
 <h3>GA Event Categories</h3>
 - Completions: Tracks completed BSD Actions in the case of signups, ecommerce and quick-donate opt-in. The ecommerce event is duplicative of the E-Commerce module data, but is less accurate because the associated values are rounded.
-- File Clicks: tracks clicks on files with extensions matching a pipe-separated list . If no extensions are specified, will only track clicks on pdfs. You can disable all file click tracking by setting file_extension
+- File Clicks: tracks clicks on files with the the `file_extensions` configuration attribute (see below). If no extensions are specified, will only track clicks on pdfs.
 - Form Submits: Tracks all form submits, regardless of the outcome.
 - Errors: Validation errors in Signup, Contribution and Share.
 - Error Log: JavaScript Errors
@@ -54,9 +54,6 @@ By default, the following things, when properly configured, are automatically tr
 4. Has SPUD:Tags whether a visitor has a spud cookie at the start of their visit. 
 5. Subsource: Captures the value of a ?subsource parameter in the URL
 
-<h3>File Tracking</h3>
-By default, GAI will track clicks on pdf files. You can extend this tracking to any filetype with the file_extensions configuration attribute (see below).
-
 <h2>Configuration</h2>
 
 The behvaior of the library can be configured by the `ga_integration_config` global object.
@@ -69,6 +66,7 @@ The configuration attributes are:
  - `msid_seed` - passes the actual `mailing_send_id` instead of the obfuscated `mailing_send_id` that is set by default on the mailing cookie. Should always set it if we can, especially for sites using the BSD mailer. Contact BSD to find out this value. 
  - `nospud` - Set to `true` to disable SPUD features. (Default: `false`)
  - `noloe` - Set to `true` to disable LOE usage. (Default: `false`)
+ - `file_extensions` - tracks clicks on files with extensions matching a pipe-separated list. If no extensions are specified, will only track clicks on pdfs. You can disable all file click tracking by setting file_extension to an empty string.
 
 Example:
 
