@@ -460,7 +460,7 @@ _gaq.push(['_setSiteSpeedSampleRate', 10],["_setAllowAnchor", true], ["_setAllow
 			bsdtracker_to_ga(BSDTracker[type].jsonData);
 		}
 		else if(get.td){
-			var decode_url = (ga_integration_config.bsddomain  ? ga_integration_config.bsddomain : "//www.bluestatedigital.com") + "/page/tracking/action-decode?td="+ get.td + "&callback=?";
+			var decode_url = (ga_integration_config.bsddomain  ? ga_integration_config.bsddomain : "//tools.bluestatedigital.com") + "/page/tracking/action-decode?td="+ get.td + "&callback=?";
 			$.getJSON(decode_url , function(tracker){
 				 bsdtracker_to_ga(tracker);
 			});
